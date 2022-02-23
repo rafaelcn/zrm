@@ -2,19 +2,21 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
+
+	"github.com/rafaelcn/zrm/fisy"
 )
 
 var (
-	recursive *bool   = flag.Bool("recursive", false, "")
-	input     *string = flag.String("files", "", "")
+	blockSize *int    = flag.Int("bs", 1, "the block size used to write data")
+	delete    *bool   = flag.Bool("d", false, "delete files after writing")
+	recursive *bool   = flag.Bool("r", false, "enable directory recursive walk")
+	input     *string = flag.String("i", "", "a list of files or directories")
 )
 
 func main() {
@@ -53,11 +55,12 @@ func main() {
 
 				filepath.Walk(f.Name(), func(path string, info fs.FileInfo, err error) error {
 					if !info.IsDir() {
-						log.Printf("%v %v", info.Name(), info.Size())
-
 						wg.Add(1)
 						go func() {
-							write(path, stat)
+							fisy.WriteFill(path, []byte{00000000000})
+							if *delete {
+								fisy.Delete(path)
+							}
 							wg.Done()
 						}()
 					}
@@ -68,7 +71,10 @@ func main() {
 				wg.Wait()
 			}
 		} else {
-			write(f.Name(), stat)
+			fisy.WriteFill(f.Name(), []byte{})
+			if *delete {
+				fisy.Delete(f.Name())
+			}
 		}
 
 		close(f)
@@ -82,33 +88,4 @@ func close(f *os.File) {
 	if err != nil {
 		log.Printf("failed to close file %s, reason %v", f.Name(), err)
 	}
-}
-
-func write(path string, stat os.FileInfo) {
-	now := time.Now()
-
-	f, err := os.OpenFile(path, os.O_RDWR, 0777)
-
-	if err != nil {
-		log.Printf("failed to open file %s, reason %v", path, err)
-		return
-	}
-	defer f.Close()
-
-	written, s := 0, stat.Size()
-
-	for s > 0 {
-		n, werr := f.Write([]byte{0})
-		written += n
-
-		if werr != nil {
-			log.Printf("failed to write zeroes in file %s, reason %v",
-				f.Name(), werr)
-		}
-
-		s -= int64(n)
-	}
-
-	ellapsed := time.Since(now)
-	fmt.Printf("took %v to write %d bytes\n", ellapsed, written)
 }
