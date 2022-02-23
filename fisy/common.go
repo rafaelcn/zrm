@@ -26,7 +26,7 @@ func WriteFill(file string, fill []byte) {
 	}
 	defer f.Close()
 
-	props, err := os.Stat(file)
+	props, err := f.Stat()
 
 	if err != nil {
 		return
