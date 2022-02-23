@@ -57,7 +57,7 @@ func main() {
 					if !info.IsDir() {
 						wg.Add(1)
 						go func() {
-							fisy.WriteFill(path, []byte{00000000000})
+							fisy.WriteFill(path, []byte{0})
 							if *delete {
 								fisy.Delete(path)
 							}
@@ -71,7 +71,7 @@ func main() {
 				wg.Wait()
 			}
 		} else {
-			fisy.WriteFill(f.Name(), []byte{})
+			fisy.WriteFill(f.Name(), []byte{0})
 			if *delete {
 				fisy.Delete(f.Name())
 			}
