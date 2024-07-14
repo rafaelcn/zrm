@@ -22,9 +22,8 @@ var (
 func main() {
 	flag.Parse()
 
-	if input == nil {
-		log.Printf("no files or directories provided")
-		return
+	if len(*input) == 0 {
+		log.Fatalf("no files or directories provided")
 	}
 
 	files := strings.Split(*input, " ")
@@ -48,8 +47,7 @@ func main() {
 
 		if stat.IsDir() {
 			if !*recursive {
-				log.Printf("won't recurse into dir %s (enable recursion)",
-					file)
+				log.Printf("won't recurse into dir %s (enable recursion)", file)
 			} else {
 				wg := sync.WaitGroup{}
 
