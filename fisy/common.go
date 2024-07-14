@@ -7,7 +7,6 @@ import (
 )
 
 func open(file string) *os.File {
-
 	f, err := os.OpenFile(file, os.O_RDWR, 0777)
 
 	if err != nil {
@@ -18,7 +17,6 @@ func open(file string) *os.File {
 }
 
 func WriteFill(file string, fill []byte) {
-
 	f := open(file)
 
 	if f == nil {
