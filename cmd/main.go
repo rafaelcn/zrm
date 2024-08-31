@@ -16,7 +16,7 @@ var (
 	blockSize *int    = flag.Int("bs", 1, "the block size used to write data")
 	delete    *bool   = flag.Bool("d", false, "delete files after writing")
 	recursive *bool   = flag.Bool("r", false, "enable directory recursive walk")
-	input     *string = flag.String("i", "", "a list of files or directories")
+	input     *string = flag.String("i", "", "a list of files or directories (use spaces to denote multiple files/directories)")
 )
 
 func main() {
